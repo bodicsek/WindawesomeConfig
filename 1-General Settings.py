@@ -128,7 +128,7 @@ config.Workspaces = Enumerable.ToArray[Workspace]([
 	Workspace(windawesome.monitors[0], TileLayout(masterAreaAxis = TileLayout.LayoutAxis.TopToBottom), [config.Bars[0]]),
 	Workspace(windawesome.monitors[0], TileLayout(masterAreaAxis = TileLayout.LayoutAxis.TopToBottom), [config.Bars[0]]),
 	Workspace(windawesome.monitors[0], TileLayout(masterAreaAxis = TileLayout.LayoutAxis.TopToBottom), [config.Bars[0]]),
-	Workspace(windawesome.monitors[0], FullScreenLayout(), [config.Bars[0]])
+	Workspace(windawesome.monitors[0], FloatingLayout(), [config.Bars[0]])
 ])
 
 config.StartingWorkspaces = [config.Workspaces[0]]
