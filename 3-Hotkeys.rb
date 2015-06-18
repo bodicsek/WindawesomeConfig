@@ -27,81 +27,109 @@ subscribe modifiers.LWin | modifiers.Shift, key.Q do
 	windawesome.quit
 end
 
-# refresh Windawesome
-subscribe modifiers.LWin | modifiers.Shift, key.R do
+# refresh Windawesome (restart???)
+subscribe modifiers.LWin, key.Q do
 	windawesome.refresh_windawesome
 end
 
 # quit application
-subscribe modifiers.LWin, key.Q do
+subscribe modifiers.LWin | modifiers.Shift, key.C do
 	hWnd = Windawesome::NativeMethods.get_foreground_window
 	Windawesome::Utilities.quit_application hWnd if Windawesome::NativeMethods.get_window_class_name(hWnd) != "WorkerW"
 end
 
-subscribe modifiers.Control | modifiers.LWin | modifiers.Shift, key.Q do
+# kill focused window
+subscribe modifiers.LWin | modifiers.Control | modifiers.Shift, key.C do
 	windawesome.remove_application_from_workspace Windawesome::NativeMethods.get_foreground_window
 end
 
-# dismiss application
-subscribe modifiers.LWin, key.D do
-	windawesome.dismiss_temporarily_shown_window Windawesome::NativeMethods.get_foreground_window
+# start terminal
+subscribe modifiers.LWin | modifiers.Shift , key.Return do
+	windawesome.run_application "C:\\tools\\cmder\\Cmder.exe"
 end
 
-# minimize application
-subscribe modifiers.LWin, key.A do
-	Windawesome::Utilities.minimize_application Windawesome::NativeMethods.get_foreground_window
+# swap focused window with master window
+subscribe modifiers.LWin, key.Return do
+	window = get_current_workspace_managed_window
+	windawesome.current_workspace.shift_window_to_main_position window if window
 end
 
-# maximize or restore application
-subscribe modifiers.LWin, key.S do
-	window = Windawesome::NativeMethods.get_foreground_window
-	ws = Windawesome::NativeMethods.get_window_style_long_ptr.invoke window
-	if ws.has_flag Windawesome::NativeMethods::WS.WS_MAXIMIZE
-		Windawesome::Utilities.restore_application window
-	elsif ws.has_flag Windawesome::NativeMethods::WS.WS_CAPTION and ws.has_flag Windawesome::NativeMethods::WS.WS_MAXIMIZEBOX
-		Windawesome::Utilities.maximize_application window
+# next layout
+subscribe modifiers.LWin, key.Space do
+  if windawesome.current_workspace.layout.layout_name == "Tile"
+    windawesome.current_workspace.change_layout Windawesome::FloatingLayout.new
+  elsif windawesome.current_workspace.layout.layout_name == "Floating"
+    windawesome.current_workspace.change_layout Windawesome::FullScreenLayout.new
+  elsif windawesome.current_workspace.layout.layout_name == "Full Screen"
+    windawesome.current_workspace.change_layout Windawesome::TileLayout.new
+end
+
+# focus next window (should subscribe LWin + Tab)
+subscribe modifiers.LWin, key.J do
+	window = get_current_workspace_managed_window
+	if window
+		next_window = windawesome.current_workspace.get_next_window window
+		windawesome.switch_to_application next_window.hWnd if next_window
+	elsif windawesome.current_workspace.get_windows_count > 0
+		windawesome.switch_to_application windawesome.current_workspace.get_windows.first.value.hWnd
 	end
 end
 
-# switch to previous workspace
-subscribe modifiers.LWin, key.Oemtilde do
-	windawesome.switch_to_workspace previous_workspace.id
+# swap with next window
+subscribe modifiers.LWin | modifiers.Shift, key.J do
+	window = get_current_workspace_managed_window
+	windawesome.current_workspace.shift_window_forward window if window
 end
 
-# start Firefox
-subscribe modifiers.LWin, key.F do
-	windawesome.run_or_show_application "^MozillaWindowClass$", "C:\\Program Files (x86)\\Pale Moon\\palemoon.exe"
+# focus previous window (should subscribe LWin + Shift + Tab)
+subscribe modifiers.LWin, key.K do
+	window = get_current_workspace_managed_window
+	if window
+		previous_window = windawesome.current_workspace.get_previous_window window
+		windawesome.switch_to_application previous_window.hWnd if previous_window
+	elsif windawesome.current_workspace.get_windows_count > 0
+		windawesome.switch_to_application windawesome.current_workspace.get_windows.first.value.hWnd
+	end
 end
 
-# start Explorer
-subscribe modifiers.LWin, key.E do
-	Windawesome::Utilities.run_application "C:\\Users\\Boris\\Desktop\\Downloads.lnk"
+# swap with previous window
+subscribe modifiers.LWin | modifiers.Shift, key.K do
+	window = get_current_workspace_managed_window
+	windawesome.current_workspace.shift_window_backwards window if window
 end
 
-# start Hostile Takeover
-subscribe modifiers.LWin, key.H do
-	Windawesome::Utilities.run_application "C:\\Program Files (x86)\\Vim\\vim73\\gvim.exe", "\"C:\\Users\\Boris\\Downloads\\Hostile Takeover.txt\""
+# shrink master area (yet with shift)
+subscribe modifiers.LWin | modifiers.Shift, key.H do
+	windawesome.current_workspace.layout.add_to_master_area_factor -0.05 if windawesome.current_workspace.layout.layout_name == "Tile"
 end
 
-# start Foobar2000
-subscribe modifiers.LWin, key.W do
-	Windawesome::Utilities.run_application "C:\\Program Files (x86)\\foobar2000\\foobar2000.exe"
+# expand master area (yet with shift)
+subscribe modifiers.LWin | modifiers.Shift, key.L do
+	windawesome.current_workspace.layout.add_to_master_area_factor if windawesome.current_workspace.layout.layout_name == "Tile"
 end
 
-# start Cygwin's MinTTY shell
-subscribe modifiers.LWin | modifiers.Shift, key.Return do
-	Windawesome::Utilities.run_application "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Cygwin\\Cygwin Terminal.lnk"
+(1 .. config.workspaces.length).each do |i|
+	k = eval("key.D" + i.to_s)
+
+        # switch to workspace k
+	subscribe modifiers.LWin, k do
+		windawesome.switch_to_workspace i
+	end
+
+        # move application to workspace k
+	subscribe modifiers.LWin | modifiers.Shift, k do
+		windawesome.change_application_to_workspace Windawesome::NativeMethods.get_foreground_window, i
+	end
 end
 
-# start Bitcomet
-subscribe modifiers.LWin, key.B do
-	Windawesome::Utilities.run_application "C:\\Program Files\\BitComet\\BitComet.exe"
-end
+
+
 
 # switch to flashing window
 subscribe modifiers.LWin, key.U do
 	windawesome.switch_to_application flashing_window if flashing_window
 end
+
 
 # toggle window floating
 subscribe modifiers.Control | modifiers.LWin | modifiers.Shift, key.F do
@@ -128,56 +156,13 @@ subscribe modifiers.Control | modifiers.LWin | modifiers.Shift, key.M do
 	windawesome.toggle_show_hide_window_menu Windawesome::NativeMethods.get_foreground_window
 end
 
+
+
+
+
 # Layout stuff
 
-subscribe modifiers.LWin | modifiers.Shift, key.T do # change layout to Tile
-	windawesome.current_workspace.change_layout Windawesome::TileLayout.new
-end
-
-subscribe modifiers.LWin | modifiers.Shift, key.M do # change layout to Full Screen
-	windawesome.current_workspace.change_layout Windawesome::FullScreenLayout.new
-end
-
-subscribe modifiers.LWin | modifiers.Shift, key.F do # change layout to Floating
-	windawesome.current_workspace.change_layout Windawesome::FloatingLayout.new
-end
-
 # window position stuff
-
-subscribe modifiers.LWin, key.J do
-	window = get_current_workspace_managed_window
-	if window
-		next_window = windawesome.current_workspace.get_next_window window
-		windawesome.switch_to_application next_window.hWnd if next_window
-	elsif windawesome.current_workspace.get_windows_count > 0
-		windawesome.switch_to_application windawesome.current_workspace.get_windows.first.value.hWnd
-	end
-end
-
-subscribe modifiers.LWin, key.K do
-	window = get_current_workspace_managed_window
-	if window
-		previous_window = windawesome.current_workspace.get_previous_window window
-		windawesome.switch_to_application previous_window.hWnd if previous_window
-	elsif windawesome.current_workspace.get_windows_count > 0
-		windawesome.switch_to_application windawesome.current_workspace.get_windows.first.value.hWnd
-	end
-end
-
-subscribe modifiers.LWin | modifiers.Shift, key.J do
-	window = get_current_workspace_managed_window
-	windawesome.current_workspace.shift_window_forward window if window
-end
-
-subscribe modifiers.LWin | modifiers.Shift, key.K do
-	window = get_current_workspace_managed_window
-	windawesome.current_workspace.shift_window_backwards window if window
-end
-
-subscribe modifiers.Control | modifiers.LWin | modifiers.Shift, key.Return do
-	window = get_current_workspace_managed_window
-	windawesome.current_workspace.shift_window_to_main_position window if window
-end
 
 # Tile Layout stuff
 
@@ -193,28 +178,6 @@ subscribe modifiers.Control | modifiers.LWin | modifiers.Shift, key.S do
 	windawesome.current_workspace.layout.toggle_master_area_axis if windawesome.current_workspace.layout.layout_name == "Tile"
 end
 
-subscribe modifiers.LWin | modifiers.Shift, key.Left do
-	windawesome.current_workspace.layout.add_to_master_area_factor -0.05 if windawesome.current_workspace.layout.layout_name == "Tile"
-end
-
-subscribe modifiers.LWin | modifiers.Shift, key.Right do
-	windawesome.current_workspace.layout.add_to_master_area_factor if windawesome.current_workspace.layout.layout_name == "Tile"
-end
 
 # Workspaces stuff
 
-(1 .. config.workspaces.length).each do |i|
-	k = eval("key.D" + i.to_s)
-
-	subscribe modifiers.LWin, k do
-		windawesome.switch_to_workspace i
-	end
-
-	subscribe modifiers.LWin | modifiers.Shift, k do
-		windawesome.change_application_to_workspace Windawesome::NativeMethods.get_foreground_window, i
-	end
-
-	subscribe modifiers.Control | modifiers.LWin | modifiers.Shift, k do
-		windawesome.add_application_to_workspace Windawesome::NativeMethods.get_foreground_window, i
-	end
-end
