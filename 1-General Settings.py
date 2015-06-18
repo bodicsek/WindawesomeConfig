@@ -124,14 +124,10 @@ config.Bars = Enumerable.ToArray[Bar]([
 ])
 
 config.Workspaces = Enumerable.ToArray[Workspace]([
-	Workspace(windawesome.monitors[0], FloatingLayout(), [config.Bars[0]], name = 'main'),
-	Workspace(windawesome.monitors[0], FullScreenLayout(), [config.Bars[0]]),
-	Workspace(windawesome.monitors[0], FullScreenLayout(), [config.Bars[0]]),
-	Workspace(windawesome.monitors[0], TileLayout(masterAreaAxis = TileLayout.LayoutAxis.TopToBottom, masterAreaWindowsCount = 2, masterAreaFactor = 0.5), [config.Bars[0]]),
-	Workspace(windawesome.monitors[0], FullScreenLayout(), [config.Bars[0]]),
-	Workspace(windawesome.monitors[0], FullScreenLayout(), [config.Bars[0]]),
-	Workspace(windawesome.monitors[0], FullScreenLayout(), [config.Bars[0]]),
-	Workspace(windawesome.monitors[0], FullScreenLayout(), [config.Bars[0]]),
+	Workspace(windawesome.monitors[0], FloatingLayout(), [config.Bars[0]]),
+	Workspace(windawesome.monitors[0], TileLayout(masterAreaAxis = TileLayout.LayoutAxis.TopToBottom), [config.Bars[0]]),
+	Workspace(windawesome.monitors[0], TileLayout(masterAreaAxis = TileLayout.LayoutAxis.TopToBottom), [config.Bars[0]]),
+	Workspace(windawesome.monitors[0], TileLayout(masterAreaAxis = TileLayout.LayoutAxis.TopToBottom), [config.Bars[0]]),
 	Workspace(windawesome.monitors[0], FullScreenLayout(), [config.Bars[0]])
 ])
 
