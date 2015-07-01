@@ -145,5 +145,28 @@ config.ProgramRules = [
 	# 	styleNotContains = WS.WS_MAXIMIZEBOX,
 	# 	rules = [ProgramRule.Rule(isFloating = True)]
 	# ),
-	ProgramRule() # an all-catching rule in the end to manage all other windows
+    
+    ProgramRule(
+        displayName = ".*Microsoft Visual Studio.*",
+        onWindowCreatedAction = OnWindowCreatedOrShownAction.HideWindow,
+        rules = [ProgramRule.Rule(workspace = 1, titlebar = State.HIDDEN, windowBorders = State.HIDDEN)]
+    ),
+    
+    ProgramRule(
+        displayName = "emacs.*",
+        rules = [ProgramRule.Rule(workspace = 2)]
+    ),
+    
+    ProgramRule(
+        displayName = "Cmder",
+        rules = [ProgramRule.Rule(workspace = 2)]
+    ),
+
+    ProgramRule(
+        className = "^rctrl_renwnd32$", # Outlook
+        rules = [ProgramRule.Rule(workspace = 3)]
+    ),
+
+
+    ProgramRule() # an all-catching rule in the end to manage all other windows
 ]
